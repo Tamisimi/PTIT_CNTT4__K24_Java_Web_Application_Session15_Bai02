@@ -26,19 +26,19 @@ public class HibernateConfig {
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
 
-    @Value("${hibernate.dialect}")
+    @Value("${hibernate.dialect:org.hibernate.dialect.MySQL8Dialect}")
     private String hibernateDialect;
 
-    @Value("${hibernate.show_sql}")
+    @Value("${hibernate.show_sql:true}")
     private String showSql;
 
-    @Value("${hibernate.format_sql}")
+    @Value("${hibernate.format_sql:true}")
     private String formatSql;
 
-    @Value("${hibernate.hbm2ddl.auto}")
+    @Value("${hibernate.hbm2ddl.auto:update}")
     private String hbm2ddlAuto;
 
-    @Value("${hibernate.packagesToScan}")
+    @Value("${hibernate.packagesToScan:org.example.session12.entity}")
     private String packagesToScan;
 
     @Bean
@@ -55,13 +55,16 @@ public class HibernateConfig {
     public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan(packagesToScan);
+        sessionFactory.setPackagesToScan(packagesToScan.split(","));
 
         Properties hibernateProperties = new Properties();
         hibernateProperties.put("hibernate.dialect", hibernateDialect);
         hibernateProperties.put("hibernate.show_sql", showSql);
         hibernateProperties.put("hibernate.format_sql", formatSql);
         hibernateProperties.put("hibernate.hbm2ddl.auto", hbm2ddlAuto);
+
+        // Thuộc tính quan trọng cho Hibernate 6
+        hibernateProperties.put("hibernate.current_session_context_class", "org.springframework.orm.hibernate5.SpringSessionContext");
 
         sessionFactory.setHibernateProperties(hibernateProperties);
         return sessionFactory;
